@@ -121,6 +121,7 @@ Yayın: GitHub Pages
 ## 👥 Geliştirici
 Koray G.
 🔗https://github.com/korayga
+
 ![Image](https://github.com/user-attachments/assets/db75f65d-e5d8-4ec1-ade0-a32738a66563)
 
 
