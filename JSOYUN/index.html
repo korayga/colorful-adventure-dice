@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>RENLİ MACERA KÜPÜ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #3a4750;
+      font-family: 'Times New Roman', 'Arial',serif;
+      color: white;
+      overflow: hidden;
+    }
+    canvas {
+      border: 4px solid #303841;
+      border-radius: 10px;
+      max-width: 90vw;
+      max-height: 80vh;
+    }
+    p#controls {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: rgba(0,0,0,0.5);
+      border-radius: 8px;
+      font-size: 1em;
+      text-align: center;
+      width: 80%;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas"></canvas>
+<p id="controls">Kontroller: A-D (Hareket), W-S (Duvarda Kayma) , Ok Tuşları (Zarı Döndür), Space (Zıpla), Shift (Yapışmayı Bırak)</p>
+
+<!-- Ses dosyaları için audio etiketleri -->
+<audio id="jumpSound" src="assets/jump.mp3"></audio>
+<audio id="deathSound" src="assets/die.mp3"></audio>
+<audio id="slideSound" src="assets/slide.mp3"></audio>
+<audio id="bgMusic" src="assets/arkaplanMuzik.mp3" loop></audio>
+<audio id="winSound" src="assets/win.mp3"></audio>
+
+<script>
+  // ----- SES -----
+  const ziplamaSesi = document.getElementById("jumpSound");
+  const olumSesi = document.getElementById("deathSound");
+  const kaymaSesi = document.getElementById("slideSound");
+  const arkaPlanMuzigi = document.getElementById('bgMusic');
+  const kazanmaSesi = document.getElementById('winSound');
+
+  // ----- RESİM -----
+  const tuzakResmi = new Image();
+  tuzakResmi.src = "assets/tuzak.png";
+  const kontrolNoktasiResmi = new Image();
+  kontrolNoktasiResmi.src = "assets/checkpoint.png";
+  const karincaResmi = new Image();
+  karincaResmi.src = "assets/monster.png";
+  const bitisResmi = new Image();
+  bitisResmi.src = "assets/finish.png";
+  const bayrakResmi = new Image();
+  bayrakResmi.src = "assets/bayrak.png";
+  const arkaPlanResmiAsset = new Image();
+  arkaPlanResmiAsset.src = "assets/Background_2.png";
+
+  let arkaPlanResmiHazir = false; // Arka plan resminin yüklenip yüklenmediği kontrolü
+  arkaPlanResmiAsset.onload = () => {
+    arkaPlanResmiHazir = true;
+  };
+  // ----- CANVAS -----
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // -----OYUN SABİTLERİ VE AYARLARI -----
+  const OYUN_GENISLIGI = 1600;
+  const OYUN_YUKSEKLIGI = 900;
+  const YER_CEKIMI_KUVVETI = 0.38;
+  const OYUNCU_HIZI = 2.5;
+  const ZIPLAMA_GUCU = 11.5;
+  const SURTUNME_KATSAYISI = 0.9;
+  const HAVA_DIRENCI_KATSAYISI = 1.034;
+  const VARSAYILAN_YAN_RENK = '#cccccc';
+  const kutucukRenkleri = {
+    1: "#6c7a89", 2: "#3498db", 3: "#e74c3c", 4: "#f1c40f", 5: "#2ecc71",
+    6: "#3498db", 7: "#e74c3c", 8: "#f1c40f", 9: "#2ecc71",
+  };
+  const KUTUCUK_BOYUTU = 75; // Haritadaki her bir kutucuğun piksel boyutu
+
+  const oyunHaritasi = [  // 2d array, her sayı farklı bir oyun elemanını temsil eder
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,1],
+    [1,81,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,0,777,91,3,2,94,4,0,0,0,0,0,0,0,0,4,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,3,0,3,0,0,0,0,0,0,0,5,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,3,3,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,3,3,0,0,0,91,2,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,3,0,3,0,0,0,0,0,0,0,3,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,94,5,0,0,0,101,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,2,2,0,1,0,0,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,4,1,7,1,4,1,0,0,0,1],
+    [1,0,0,0,0,94,5,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,91,92,93,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,94,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,94,0,0,0,0,0,2,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,101,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,90,90,90,0,0,0,0,0,0,9,1,1,99,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,92,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,90,90,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,4,7,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,6,99,0,0,0,0,0,0,0,0,0,0,90,90,90,0,0,0,0,0,0,0,1],
+    [1,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,90,90,90,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,4,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,6,1,99,1,1,0,0,0,1,1,8,92,1,1,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,4,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,4,0,0,4,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,4,0,0,4,0,0,4,0,4,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,4,0,0,0,0,4,0,0,0,0,0,2,1],
+    [1,1,8,1,1,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,2,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1],
+    [1,2,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,2,1],
+    [1,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,0,0,2,1],
+    [1,1,1,1,1,1,1,1,90,1,99,1,1,1,1,1,1,1,1,2,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,2,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,2,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1],
+    [1,1,1,1,6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ];
+
+  // -----  OYUN İÇİ DEĞİŞKENLER -----
+  let tuvalOlcegi = 1; // Canvas'ın gerçek boyutu ile ekrandaki boyutu arasındaki ölçek
+  let aktifKontrolNoktasi = { x: 120, y: 500 }; // Oyuncunun öldüğünde döneceği son aktif kontrol noktası
+  let dikenliKutucuklar = []; // Haritadaki tüm dikenli kutucukların listesi
+  let kontrolNoktasiKutucuklari = []; // Haritadaki tüm kontrol noktalarının listesi
+  let platformlar = []; // Haritadaki tüm platformların  listesi
+  let renkYamalari = []; // Haritadaki tüm renk yamalarının listesi
+  let hareketliTuzaklar = []; // Haritadaki tüm hareketli tuzakların listesi
+  let bitisCizgisiAlanlari = []; // Haritadaki bitiş çizgisi alanlarının listesi
+  let turkBayraklari = []; // Haritadaki TÜRK Bayraklarının listesi
+  let kameraPozisyonu = { x: 0, y: 0 }; // Kameranın oyun konumu
+  const basiliTuslar = {}; // Hangi tuşların basılı olduğunu takip eden nesne
+  let yapismayiBirakmaBeklemesi = false; // Shift ile yapışmayı bıraktıktan sonra kısa bir süre tekrar yapışmayı engelleme
+  let oyunDurumu = "baslangic"; // Oyunun mevcut durumu: "baslangic", "oynaniyor", "kazanildi"
+  let konfetiParcaciklari = []; // Kazanma ekranında gösterilecek konfeti parçacıkları
+
+  // Oyuncu nesnesi ve özellikleri
+  const oyuncu = {
+    x: 70, y: 3010,
+    genislik: 75, yukseklik: 75, // Oyuncunun boyutları
+    hizX: 0, hizY: 0, // Oyuncunun x ve y eksenlerindeki anlık hızı
+    yanRenkleri: {
+      ust: VARSAYILAN_YAN_RENK,
+      sag: VARSAYILAN_YAN_RENK,
+      alt: VARSAYILAN_YAN_RENK,
+      sol: VARSAYILAN_YAN_RENK
+    },
+    zipliyorMu: false, // Oyuncunun zıplayıp zıplamadığı
+    yerdeMi: false, // Oyuncunun yerde olup olmadığını
+    yapisiyorMu: false, // Oyuncunun bir duvara yapışıp yapışmadığını
+    yapistigiKutucuk: null, // Oyuncunun yapıştığı platform nesnesi
+    yapistigiYon: null, // Oyuncunun hangi yöndeki yüzeyiyle yapıştığı 'ust', 'alt', 'sol', 'sag'
+    duvarZiplamasiKorumasi: false, // Duvardan zıpladıktan sonra kısa bir süre tekrar duvara yapışma engeli
+  };
+
+  // ----- OYUN FONKSİYONLARI -----
+
+  function tuvalBoyutlandir() { //Oyun görüntüsü ayarı
+    const pencereOrani = window.innerWidth / window.innerHeight;
+    const oyunOrani = OYUN_GENISLIGI / OYUN_YUKSEKLIGI;
+    if (pencereOrani > oyunOrani) {
+      tuvalOlcegi = Math.min(1, window.innerHeight * 0.8 / OYUN_YUKSEKLIGI);
+    } else {
+      tuvalOlcegi = Math.min(1, window.innerWidth * 0.9 / OYUN_GENISLIGI);
+    }
+    canvas.width = OYUN_GENISLIGI;
+    canvas.height = OYUN_YUKSEKLIGI;
+    canvas.style.width = `${OYUN_GENISLIGI * tuvalOlcegi}px`;
+    canvas.style.height = `${OYUN_YUKSEKLIGI * tuvalOlcegi}px`;
+  }
+
+  function haritaVerisiniIsle() { // Oyun haritasına göre nesneleri birleştirme
+    platformlar = [];
+    renkYamalari = [];
+    dikenliKutucuklar = [];
+    kontrolNoktasiKutucuklari = [];
+    hareketliTuzaklar = [];
+    bitisCizgisiAlanlari = [];
+    turkBayraklari = [];
+
+    // Harita dizisini satır satır (y) ve sütun sütun (x) tarama
+    for (let y = 0; y < oyunHaritasi.length; y++) {
+      for (let x = 0; x < oyunHaritasi[y].length; x++) {
+        const kutucukTipi = oyunHaritasi[y][x];
+        const kutucukX = x * KUTUCUK_BOYUTU;
+        const kutucukY = y * KUTUCUK_BOYUTU;
+
+        // Kutucuk tipine göre ilgili nesneyi oluşturma ve tanımlı listelerine ekleme
+        if (kutucukTipi >= 1 && kutucukTipi <= 5) {
+          platformlar.push({
+            x: kutucukX, y: kutucukY,
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: KUTUCUK_BOYUTU,
+            renk: kutucukRenkleri[kutucukTipi] || VARSAYILAN_YAN_RENK,
+            tip: kutucukTipi === 1 ? 'zemin' : 'renkli',
+            haritaX: x,
+            haritaY: y
+          });
+        }
+        else if (kutucukTipi >= 6 && kutucukTipi <= 9) {
+          const renk = kutucukRenkleri[kutucukTipi];
+          platformlar.push({
+            x: kutucukX,
+            y: kutucukY,
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: KUTUCUK_BOYUTU,
+            renk: kutucukRenkleri[1],
+            tip: 'zemin',
+            haritaX: x, haritaY: y
+          });
+          renkYamalari.push({
+            x: kutucukX,
+            y: kutucukY,
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: 10, // varsayılan gri karonun üstünde gözükmesini sağlamak için
+            renk: renk,
+            haritaX: x, haritaY: y
+          });
+        }
+        else if (kutucukTipi >= 90 && kutucukTipi <= 94) {
+          platformlar.push({
+            x: kutucukX, y: kutucukY,
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: KUTUCUK_BOYUTU,
+            renk: kutucukRenkleri[kutucukTipi - 89], // 1 2 3 4 5 renklerini direkt kullanarak renkli tuzak yapma
+            tip: 'zemin',
+            haritaX: x,
+            haritaY: y
+          });
+          dikenliKutucuklar.push({// kutucukların üstüne yapışık görünmesi amacıyla iç içe geçirilmiş resim kutu konfigürasyonu
+            x: kutucukX,
+            y: kutucukY - KUTUCUK_BOYUTU * 0.75,
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: KUTUCUK_BOYUTU * 0.75,
+            yon: "ust",
+            haritaX: x, haritaY: y
+          });
+        }
+        else if (kutucukTipi === 99) {
+          platformlar.push({
+            x: kutucukX, y: kutucukY,
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: KUTUCUK_BOYUTU,
+            renk: kutucukRenkleri[1],
+            tip: 'zemin',
+            haritaX: x,
+            haritaY: y
+          });
+          kontrolNoktasiKutucuklari.push({
+            x: kutucukX,
+            y: kutucukY - KUTUCUK_BOYUTU * 0.9, //bayrak direği kutunun içinden çıkararak bağımsız değil kutuyla birleşik olduğunu ayarlama
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: KUTUCUK_BOYUTU,
+            aktifMi: false
+          });
+        }
+        else if (kutucukTipi === 100) {
+          hareketliTuzaklar.push({
+            x: kutucukX,
+            y: kutucukY + (KUTUCUK_BOYUTU - (KUTUCUK_BOYUTU * 0.4)) / 2,
+            baslangicX: kutucukX,
+            genislik: KUTUCUK_BOYUTU * 0.8,
+            yukseklik: KUTUCUK_BOYUTU * 0.4,
+            hiz: 1.2, yon: 1,
+            menzil: KUTUCUK_BOYUTU * 3, // haritada koyulduğu yerden 3 birim yatay hareket sağlanması
+            gidilenMesafe: 0,
+            tip: 'yatay',
+            resim: karincaResmi
+          });
+        }
+        else if (kutucukTipi === 101) {
+          hareketliTuzaklar.push({
+            x: kutucukX + (KUTUCUK_BOYUTU - (KUTUCUK_BOYUTU * 0.8)) / 2, y: kutucukY,
+            baslangicY: kutucukY,
+            genislik: KUTUCUK_BOYUTU * 0.8,
+            yukseklik: KUTUCUK_BOYUTU * 0.4,
+            hiz: 1.0,
+            yon: 1,
+            menzil: KUTUCUK_BOYUTU * 2.5, // haritada koyulduğu yerden 2.5 birim yatay hareket sağlanması
+            gidilenMesafe: 0,
+            tip: 'dikey',
+            resim: karincaResmi
+          });
+        }
+        else if (kutucukTipi === 81) {
+          turkBayraklari.push({
+            x: kutucukX ,
+            y: kutucukY - (KUTUCUK_BOYUTU * 0.9),
+            yukseklik: KUTUCUK_BOYUTU,
+            genislik: KUTUCUK_BOYUTU,
+            resim: bayrakResmi
+          });
+          let platformVarMi = platformlar.some(p => p.haritaX === x && p.haritaY === y);
+          if (!platformVarMi) {
+            platformlar.push({
+              x: kutucukX,
+              y: kutucukY,
+              genislik: KUTUCUK_BOYUTU,
+              yukseklik: KUTUCUK_BOYUTU,
+              renk: kutucukRenkleri[1],
+              tip: 'zemin',
+              haritaX: x,
+              haritaY: y
+            });
+          }
+        }
+        else if (kutucukTipi === 777) {
+          const BITIS_RESMI_TOPLAM_YUKSEKLIGI = KUTUCUK_BOYUTU * 1.5;
+          const BITIS_RESMI_CIZIM_GENISLIGI = KUTUCUK_BOYUTU * 2;
+          const BITIS_BACAK_YUKSEKLIK_ORANI = 0.1;
+
+          bitisCizgisiAlanlari.push({
+            x: (x - 1) * KUTUCUK_BOYUTU,
+            y: kutucukY - (BITIS_RESMI_TOPLAM_YUKSEKLIGI * (1 - BITIS_BACAK_YUKSEKLIK_ORANI)),
+            yukseklik: BITIS_RESMI_TOPLAM_YUKSEKLIGI,
+            genislik: BITIS_RESMI_CIZIM_GENISLIGI,
+            resim: bitisResmi,
+            collisionX: (x - 1) * KUTUCUK_BOYUTU,
+            collisionY: kutucukY,
+            collisionWidth: KUTUCUK_BOYUTU * 2,
+            collisionHeight: KUTUCUK_BOYUTU
+          });
+          if (oyunHaritasi[y][x-1] === 0) {
+            platformlar.push({
+              x: (x-1) * KUTUCUK_BOYUTU,
+              y: kutucukY,
+              genislik: KUTUCUK_BOYUTU,
+              yukseklik: KUTUCUK_BOYUTU,
+              renk: kutucukRenkleri[1],
+              tip: 'zemin',
+              haritaX: x-1,
+              haritaY: y
+            });
+          }
+          platformlar.push({
+            x: kutucukX,
+            y: kutucukY,
+            genislik: KUTUCUK_BOYUTU,
+            yukseklik: KUTUCUK_BOYUTU,
+            renk: kutucukRenkleri[1],
+            tip: 'zemin',
+            haritaX: x,
+            haritaY: y
+          });
+        }
+      }
+    }
+  }
+
+  function oyunuSifirlaVeBaslat() {
+    haritaVerisiniIsle();
+    const baslangicSutun = 1;
+    const enAltSira = oyunHaritasi.length - 1;
+    oyuncu.x = baslangicSutun * KUTUCUK_BOYUTU;
+    oyuncu.y = enAltSira * KUTUCUK_BOYUTU - oyuncu.yukseklik;
+    aktifKontrolNoktasi = { x: oyuncu.x, y: oyuncu.y };
+
+    oyuncu.hizX = 0;
+    oyuncu.hizY = 0;
+    oyuncu.yanRenkleri = {
+      ust: VARSAYILAN_YAN_RENK, sag: VARSAYILAN_YAN_RENK,
+      alt: VARSAYILAN_YAN_RENK, sol: VARSAYILAN_YAN_RENK
+    };
+    oyuncu.yapisiyorMu = false;
+    oyuncu.yapistigiKutucuk = null;
+    oyuncu.yapistigiYon = null;
+    oyuncu.yerdeMi = false;
+    oyuncu.zipliyorMu = false;
+    oyuncu.duvarZiplamasiKorumasi = false;
+    yapismayiBirakmaBeklemesi = false;
+
+    kameraPozisyonu = { x: 0, y: 0 };
+    kameraPozisyonunuGuncelle();
+  }
+
+  // Oyuncuyu en son aktif ettiği checkpointine geri döndürürme
+  function kontrolNoktasinaDon() {
+    olumSesi.currentTime = 0;
+    olumSesi.play();
+    oyuncu.x = aktifKontrolNoktasi.x;
+    oyuncu.y = aktifKontrolNoktasi.y;
+    oyuncu.hizX = 0;
+    oyuncu.hizY = 0;
+    oyuncu.yapisiyorMu = false;
+    oyuncu.yapistigiKutucuk = null;
+    oyuncu.yapistigiYon = null;
+    oyuncu.yerdeMi = false;
+    oyuncu.zipliyorMu = false;
+    kameraPozisyonunuGuncelle();
+  }
+  // Küpün yan yüzey renklerini belirtilen yönde döndürür
+  function oyuncuYanlariniDondur(yon) {
+    const y = oyuncu.yanRenkleri;
+    if (yon === 'sag') {
+      const tempUst = y.ust;
+      y.ust = y.sol;
+      y.sol = y.alt;
+      y.alt = y.sag;
+      y.sag = tempUst;
+    } else if (yon === 'sol') {
+      const tempUst = y.ust;
+      y.ust = y.sag;
+      y.sag = y.alt;
+      y.alt = y.sol;
+      y.sol = tempUst;
+    }
+  }
+  // Klavye olay dinleyicilerini ayarlama
+  function klavyeDinleyicileriniAyarla() {
+    window.addEventListener('keydown', (e) => {
+      const tus = e.key.toLowerCase();
+      basiliTuslar[tus] = true;
+
+      if (tus === 'enter') {
+        if (oyunDurumu === "baslangic") {
+          oyunDurumu = "oynaniyor";
+          oyunuSifirlaVeBaslat();
+          arkaPlanMuzigi.currentTime = 0;
+          arkaPlanMuzigi.play().catch(err => console.error("Müzik başlatılamadı:", err));
+        } else if (oyunDurumu === "kazanildi") {
+          // Sesleri yönet
+          kazanmaSesi.pause();
+          kazanmaSesi.currentTime = 0;
+
+          // Oyun durumunu ve verilerini sıfırla
+          oyunuSifirlaVeBaslat();
+          konfetiParcaciklari = []; // Konfetileri temizle
+
+          oyunDurumu = "oynaniyor"; // Oyunu oynanabilir hale getir
+
+          // Arka plan müziğini yeniden başlat
+          arkaPlanMuzigi.currentTime = 0;
+          arkaPlanMuzigi.play().catch(err => console.error("Arka plan müziği yeniden başlatılamadı:", err));
+        }
+      }
+
+      if (oyunDurumu === "oynaniyor") {
+        let donduMu = false;
+        if (tus === 'arrowleft') {
+          oyuncuYanlariniDondur('sol');
+          donduMu = true;
+        } else if (tus === 'arrowright') {
+          oyuncuYanlariniDondur('sag');
+          donduMu = true;
+        }
+        if (donduMu && oyuncu.yapisiyorMu) {
+          oyuncu.yapisiyorMu = false;
+          oyuncu.yapistigiKutucuk = null;
+          oyuncu.yapistigiYon = null;
+          oyuncu.yerdeMi = false;
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      basiliTuslar[e.key.toLowerCase()] = false;
+    });
+  }
+  // Kamera pozisyonunu oyuncuyu takip edecek şekilde ayarlama
+  function kameraPozisyonunuGuncelle() {
+    const hedefX = oyuncu.x - OYUN_GENISLIGI / 2 + oyuncu.genislik / 2;
+    const hedefY = oyuncu.y - OYUN_YUKSEKLIGI / 2 + oyuncu.yukseklik / 2;
+    kameraPozisyonu.x += (hedefX - kameraPozisyonu.x) * 0.1;
+    kameraPozisyonu.y += (hedefY - kameraPozisyonu.y) * 0.1;
+
+    const maksimumKameraX = oyunHaritasi[0].length * KUTUCUK_BOYUTU - OYUN_GENISLIGI;
+    const maksimumKameraY = oyunHaritasi.length * KUTUCUK_BOYUTU - OYUN_YUKSEKLIGI;
+    kameraPozisyonu.x = Math.max(0, Math.min(kameraPozisyonu.x, maksimumKameraX));
+    kameraPozisyonu.y = Math.max(0, Math.min(kameraPozisyonu.y, maksimumKameraY));
+  }
+  // Oyunun bir sonraki kare için durumunu güncelleme
+  function oyunDurumunuGuncelle() {
+    if (oyunDurumu !== "oynaniyor") return;
+
+    // Oyuncu Hareketi
+    let istenenHizX = 0;
+    if (basiliTuslar['a']) istenenHizX = -OYUNCU_HIZI;
+    if (basiliTuslar['d']) istenenHizX = OYUNCU_HIZI;
+
+    if (oyuncu.yerdeMi || oyuncu.yapisiyorMu) {
+      oyuncu.hizX += (istenenHizX - oyuncu.hizX) * 0.2;
+      oyuncu.hizX *= SURTUNME_KATSAYISI;
+    } else {
+      oyuncu.hizX += (istenenHizX - oyuncu.hizX) * 0.1;
+      oyuncu.hizX *= HAVA_DIRENCI_KATSAYISI;
+    }
+
+    // Yapışmayı Bırakma
+    if (basiliTuslar['shift'] && oyuncu.yapisiyorMu && !yapismayiBirakmaBeklemesi) {
+      oyuncu.yapisiyorMu = false;
+      oyuncu.yapistigiKutucuk = null;
+      if(oyuncu.yapistigiYon === 'sol') oyuncu.hizX = 2;
+      else if(oyuncu.yapistigiYon === 'sag') oyuncu.hizX = -2;
+      else if(oyuncu.yapistigiYon === 'alt') oyuncu.hizY = 2;
+      else if(oyuncu.yapistigiYon === 'ust') oyuncu.hizY = -2;
+      oyuncu.yapistigiYon = null;
+      oyuncu.yerdeMi = false;
+      yapismayiBirakmaBeklemesi = true;
+      setTimeout(() => yapismayiBirakmaBeklemesi = false, 250);
+    }
+
+    // Zıplama
+    if (basiliTuslar[' '] && (oyuncu.yerdeMi || oyuncu.yapisiyorMu) && !oyuncu.zipliyorMu) {
+      ziplamaSesi.currentTime = 0;
+      ziplamaSesi.play();
+      oyuncu.hizY = -ZIPLAMA_GUCU;
+      oyuncu.zipliyorMu = true;
+      oyuncu.yerdeMi = false;
+
+      if (oyuncu.yapisiyorMu) {
+        const sonYapistigiYon = oyuncu.yapistigiYon;
+        oyuncu.yapisiyorMu = false;
+        oyuncu.yapistigiKutucuk = null;
+        oyuncu.yapistigiYon = null;
+        oyuncu.duvarZiplamasiKorumasi = true;
+        let ziplamaItkisi = OYUNCU_HIZI * 1.5;
+
+        if ((sonYapistigiYon === 'sol' && basiliTuslar['a']) || (sonYapistigiYon === 'sag' && basiliTuslar['d'])) {
+          ziplamaItkisi *= 0.5;
+        }
+        if (sonYapistigiYon === 'sol') {
+          oyuncu.hizX = ziplamaItkisi;
+          oyuncu.hizY = -ZIPLAMA_GUCU * 1.15;
+          oyuncu.x += 3;
+        } else if (sonYapistigiYon === 'sag') {
+          oyuncu.hizX = -ziplamaItkisi;
+          oyuncu.hizY = -ZIPLAMA_GUCU * 1.15;
+          oyuncu.x -= 3;
+        } else if (sonYapistigiYon === 'ust') {
+          oyuncu.hizY = ZIPLAMA_GUCU * 0.8;
+          oyuncu.y += 3;
+        }
+        setTimeout(() => oyuncu.duvarZiplamasiKorumasi = false, 250);
+      } else {
+        if (basiliTuslar['a']) {
+          oyuncu.hizX = Math.min(oyuncu.hizX, -OYUNCU_HIZI * 0.75);
+        } else if (basiliTuslar['d']) {
+          oyuncu.hizX = Math.max(oyuncu.hizX, OYUNCU_HIZI * 0.75);
+        }
+      }
+    }
+
+    // Yer Çekimi ve Duvar Kayması
+    if (!oyuncu.yapisiyorMu) {
+      oyuncu.hizY += YER_CEKIMI_KUVVETI;
+    } else {
+      if (!oyuncu.zipliyorMu) oyuncu.hizY = 0;
+      if (oyuncu.yapistigiYon === 'sol' && oyuncu.hizX < 0) oyuncu.hizX = 0;
+      if (oyuncu.yapistigiYon === 'sag' && oyuncu.hizX > 0) oyuncu.hizX = 0;
+      if (oyuncu.yapistigiYon === 'ust' && oyuncu.hizY < 0) oyuncu.hizY = 0;
+      if (oyuncu.yapistigiYon === 'alt' && oyuncu.hizY > 0) oyuncu.hizY = 0;
+
+      const kaymaHizi = 1.5;
+      let kayiyorMu = false;
+      if (oyuncu.yapistigiYon === 'sol' || oyuncu.yapistigiYon === 'sag') {
+        if (basiliTuslar['w']) { oyuncu.y -= kaymaHizi; kayiyorMu = true; }
+        else if (basiliTuslar['s']) { oyuncu.y += kaymaHizi; kayiyorMu = true; }
+      } else if (oyuncu.yapistigiYon === 'ust') {
+        if (basiliTuslar['a']) { oyuncu.x -= kaymaHizi; kayiyorMu = true; }
+        else if (basiliTuslar['d']) { oyuncu.x += kaymaHizi; kayiyorMu = true; }
+      }
+      if (kayiyorMu && kaymaSesi.readyState >= 3) {
+        kaymaSesi.currentTime = 0;
+        kaymaSesi.play().catch(e => console.warn("Kayma sesi çalınamadı:", e));
+      }
+    }
+
+    oyuncu.x += oyuncu.hizX;
+    oyuncu.y += oyuncu.hizY;
+    oyuncu.yerdeMi = false;
+
+    // Renk Yaması Kontrolü
+    for (const yama of renkYamalari) {
+      const oAX = oyuncu.x + oyuncu.genislik / 2;
+      const oAY = oyuncu.y + oyuncu.yukseklik;
+      if (oAX > yama.x && oAX < yama.x + yama.genislik && oAY > yama.y - 5 && oAY < yama.y + yama.yukseklik + 5 &&
+              dikdortgenlerCarpisiyorMu({x: oyuncu.x, y: oyuncu.y + oyuncu.yukseklik -1, genislik: oyuncu.genislik, yukseklik: 1}, yama)) {
+        oyuncu.yanRenkleri.alt = yama.renk;
+        break;
+      }
+    }
+
+    // Platform Çarpışmaları ve Yapışma
+    for (const platform of platformlar) {
+      if (dikdortgenlerCarpisiyorMu(oyuncu, platform)) {
+        const oMX = oyuncu.x + oyuncu.genislik / 2;
+        const pMX = platform.x + platform.genislik / 2;
+        const oMY = oyuncu.y + oyuncu.yukseklik / 2;
+        const pMY = platform.y + platform.yukseklik / 2;
+        const fX = oMX - pMX;
+        const fY = oMY - pMY;
+        const bYG = oyuncu.genislik / 2 + platform.genislik / 2;
+        const bYY = oyuncu.yukseklik / 2 + platform.yukseklik / 2;
+        const cX = bYG - Math.abs(fX);
+        const cY = bYY - Math.abs(fY);
+        let carpisilanYon = null;
+
+        if (cY < cX) {
+          if (fY < 0) { oyuncu.y = platform.y - oyuncu.yukseklik; carpisilanYon = 'alt'; }
+          else { oyuncu.y = platform.y + platform.yukseklik; carpisilanYon = 'ust'; }
+          oyuncu.hizY = 0;
+          if (carpisilanYon === 'alt') oyuncu.yerdeMi = true;
+          oyuncu.zipliyorMu = false;
+        } else {
+          if (fX < 0) { oyuncu.x = platform.x - oyuncu.genislik; carpisilanYon = 'sag'; }
+          else { oyuncu.x = platform.x + platform.genislik; carpisilanYon = 'sol'; }
+          oyuncu.hizX = 0;
+        }
+
+        const aktifYanRenk = oyuncu.yanRenkleri[carpisilanYon] || VARSAYILAN_YAN_RENK;
+        const yapisabilirMi = aktifYanRenk === platform.renk && aktifYanRenk !== VARSAYILAN_YAN_RENK && platform.tip !== 'zemin' &&
+                !basiliTuslar['shift'] && !oyuncu.duvarZiplamasiKorumasi && !yapismayiBirakmaBeklemesi;
+
+        if (yapisabilirMi && !oyuncu.yapisiyorMu) {
+          oyuncu.yapisiyorMu = true;
+          oyuncu.yapistigiKutucuk = platform;
+          oyuncu.yapistigiYon = carpisilanYon;
+          oyuncu.zipliyorMu = false;
+        } else if (oyuncu.yapisiyorMu && oyuncu.yapistigiKutucuk === platform) {
+          if (oyuncu.yapistigiYon === 'alt') oyuncu.y = platform.y - oyuncu.yukseklik;
+          else if (oyuncu.yapistigiYon === 'ust') oyuncu.y = platform.y + platform.yukseklik;
+          else if (oyuncu.yapistigiYon === 'sag') oyuncu.x = platform.x - oyuncu.genislik;
+          else if (oyuncu.yapistigiYon === 'sol') oyuncu.x = platform.x + platform.genislik;
+        }
+      }
+    }
+
+    // Yapışma Durumunun Korunması
+    if (oyuncu.yapisiyorMu && oyuncu.yapistigiKutucuk) {
+      let halaDokunuyorMu = false;
+      const o = oyuncu;
+      const p = o.yapistigiKutucuk;
+      const y = o.yapistigiYon;
+      const marj = KUTUCUK_BOYUTU; // Daha geniş bir marj, kayarken kopmayı azaltabilir
+      let dokunmaAlani = { x: o.x, y: o.y, genislik: o.genislik, yukseklik: o.yukseklik };
+
+      if (y === 'alt') dokunmaAlani = { x: o.x, y: o.y + o.yukseklik - marj, genislik: o.genislik, yukseklik: marj * 2 };
+      else if (y === 'ust') dokunmaAlani = { x: o.x, y: o.y - marj, genislik: o.genislik, yukseklik: marj * 2 };
+      else if (y === 'sag') dokunmaAlani = { x: o.x + o.genislik - marj, y: o.y, genislik: marj * 2, yukseklik: o.yukseklik };
+      else if (y === 'sol') dokunmaAlani = { x: o.x - marj, y: o.y, genislik: marj * 2, yukseklik: o.yukseklik };
+
+      if (dikdortgenlerCarpisiyorMu(dokunmaAlani, p) && oyuncu.yanRenkleri[y] === p.renk) {
+        halaDokunuyorMu = true;
+      }
+      if (!halaDokunuyorMu) {
+        oyuncu.yapisiyorMu = false;
+        oyuncu.yapistigiKutucuk = null;
+        oyuncu.yapistigiYon = null;
+        oyuncu.yerdeMi = false;
+      }
+    }
+
+    // Tuzak Kontrolü
+    for (const diken of dikenliKutucuklar) {
+      const dikenAlani = {
+        x: diken.x + diken.genislik * 0.1, y: diken.y + diken.yukseklik * 0.1,
+        genislik: diken.genislik * 0.8, yukseklik: diken.yukseklik * 0.8
+      };
+      if (dikdortgenlerCarpisiyorMu(oyuncu, dikenAlani)) {
+        kontrolNoktasinaDon();
+        return;
+      }
+    }
+
+    // Checkpoint Kontrolü
+    for (const kn of kontrolNoktasiKutucuklari) {
+      const oAX = oyuncu.x + oyuncu.genislik / 2;
+      const oAY = oyuncu.y + oyuncu.yukseklik;
+      const knAUst = kn.y + kn.yukseklik * 0.6;
+      const knAAlt = kn.y + kn.yukseklik;
+      const kNdaMi = (oAX > kn.x && oAX < kn.x + kn.genislik && oAY >= knAUst - 2 && oAY <= knAAlt + 2);
+
+      if (kNdaMi && !kn.aktifMi) {
+        kontrolNoktasiKutucuklari.forEach(k => k.aktifMi = false);
+        kn.aktifMi = true;
+        const knKY = kn.y + kn.yukseklik * 0.6 - oyuncu.yukseklik;
+        aktifKontrolNoktasi = { x: kn.x + (kn.genislik - oyuncu.genislik) / 2, y: knKY };
+      }
+    }
+
+    // Hareketli Tuzak Kontrolü
+    for (let i = hareketliTuzaklar.length - 1; i >= 0; i--) {
+      const tuzak = hareketliTuzaklar[i];
+      if (tuzak.tip === 'yatay') {
+        tuzak.x += tuzak.hiz * tuzak.yon;
+        tuzak.gidilenMesafe += Math.abs(tuzak.hiz);
+        if (tuzak.gidilenMesafe >= tuzak.menzil) {
+          if (tuzak.yon === 1) tuzak.x = tuzak.baslangicX + tuzak.menzil;
+          else tuzak.x = tuzak.baslangicX - tuzak.menzil;
+          tuzak.yon *= -1;
+          tuzak.gidilenMesafe = 0;
+          tuzak.baslangicX = tuzak.x;
+        }
+      } else if (tuzak.tip === 'dikey') {
+        tuzak.y += tuzak.hiz * tuzak.yon;
+        tuzak.gidilenMesafe += Math.abs(tuzak.hiz);
+        if (tuzak.gidilenMesafe >= tuzak.menzil) {
+          if (tuzak.yon === 1) tuzak.y = tuzak.baslangicY + tuzak.menzil;
+          else tuzak.y = tuzak.baslangicY - tuzak.menzil;
+          tuzak.yon *= -1;
+          tuzak.gidilenMesafe = 0;
+          tuzak.baslangicY = tuzak.y;
+        }
+      }
+      if (dikdortgenlerCarpisiyorMu(oyuncu, tuzak)) {
+        kontrolNoktasinaDon();
+        return;
+      }
+    }
+
+    // Bitiş Çizgisi Kontrolü
+    for (const bitis of bitisCizgisiAlanlari) {
+      const oyuncuOrtaX = oyuncu.x + oyuncu.genislik / 2;
+      const oyuncuAltY = oyuncu.y + oyuncu.yukseklik;
+      const bitisUstY = bitis.collisionY;
+      const bitisAltY = bitis.collisionY + bitis.collisionHeight;
+      const bitisSolX = bitis.collisionX;
+      const bitisSagX = bitis.collisionX + bitis.collisionWidth;
+
+      const oyuncuBitisteMi =
+              oyuncuOrtaX > bitisSolX &&
+              oyuncuOrtaX < bitisSagX &&
+              oyuncuAltY >= bitisUstY - 2 &&
+              oyuncuAltY <= bitisAltY + 2;
+
+      if (oyuncuBitisteMi && oyunDurumu !== "kazanildi") {
+        oyunDurumu = "kazanildi";
+        arkaPlanMuzigi.pause();
+        kazanmaSesi.play().catch(e => console.error("Kazanma sesi çalınamadı:", e));
+
+        konfetiParcaciklari = []; // Önceki konfetileri temizle (eğer varsa)
+        for (let i = 0; i < 200; i++) {
+          konfetiParcaciklari.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * -canvas.height, // Ekrana yukarıdan düşsünler
+            renk: `hsl(${Math.random() * 360}, 100%, 60%)`,
+            boyut: Math.random() * 6 + 4,
+            hizY: Math.random() * 3 + 2,
+            hizX: (Math.random() - 0.5) * 2,
+            aci: Math.random() * 2 * Math.PI,
+            donusHizi: Math.random() * 0.1 - 0.05
+          });
+        }
+        break;
+      }
+    }
+
+    // Harita Sınırları Kontrolü
+    const haritaPikselGenisligi = oyunHaritasi[0].length * KUTUCUK_BOYUTU;
+    const haritaPikselYuksekligi = oyunHaritasi.length * KUTUCUK_BOYUTU;
+    if (oyuncu.x < 0) { oyuncu.x = 0; oyuncu.hizX = 0; }
+    if (oyuncu.x + oyuncu.genislik > haritaPikselGenisligi) { oyuncu.x = haritaPikselGenisligi - oyuncu.genislik; oyuncu.hizX = 0; }
+    if (oyuncu.y < 0) { oyuncu.y = 0; oyuncu.hizY = 0; }
+    if (oyuncu.y + oyuncu.yukseklik > haritaPikselYuksekligi) {
+      oyuncu.y = haritaPikselYuksekligi - oyuncu.yukseklik;
+      if (!oyuncu.yapisiyorMu) {
+        oyuncu.hizY = 0;
+        oyuncu.yerdeMi = true;
+        oyuncu.zipliyorMu = false;
+      }
+    }
+    kameraPozisyonunuGuncelle();
+  }
+  // İki dikdörtgenin çarpışıp çarpışmadığını kontrolü
+  function dikdortgenlerCarpisiyorMu(dA, dB) {
+    return dA.x < dB.x + dB.genislik &&
+            dA.x + dA.genislik > dB.x &&
+            dA.y < dB.y + dB.yukseklik &&
+            dA.y + dA.yukseklik > dB.y;
+  }
+
+  function oyuncuyuCiz() {
+    const { x, y, genislik, yukseklik, yanRenkleri } = oyuncu;
+    const kX = x - kameraPozisyonu.x;
+    const kY = y - kameraPozisyonu.y;
+    const kK = 8;
+
+    ctx.fillStyle = '#f0f0f0'; // Ana gövde rengi
+    ctx.fillRect(kX, kY, genislik, yukseklik);
+
+    // Gözler ve ağız
+    ctx.fillStyle = 'black';
+    ctx.beginPath();
+    ctx.arc(kX + genislik / 2, kY + genislik / 2, genislik / 4, 0, Math.PI, false); // Ağız
+    ctx.fill();
+    ctx.fillRect(kX + genislik/4, kY + genislik/4, genislik/8, genislik/8); // Sol göz
+    ctx.fillRect(kX + genislik*3/4 - genislik/8, kY + genislik/4, genislik/8, genislik/8); // Sağ göz
+
+    // Yan renkler
+    ctx.fillStyle = yanRenkleri.ust;
+    ctx.fillRect(kX, kY, genislik, kK);
+    ctx.fillStyle = yanRenkleri.alt;
+    ctx.fillRect(kX, kY + yukseklik - kK, genislik, kK);
+    ctx.fillStyle = yanRenkleri.sol;
+    ctx.fillRect(kX, kY + kK, kK, yukseklik - 2 * kK);
+    ctx.fillStyle = yanRenkleri.sag;
+    ctx.fillRect(kX + genislik - kK, kY + kK, kK, yukseklik - 2 * kK);
+  }
+  // Tuzakları çizME
+  function dikenleriCiz() {
+    tuzakResmi.onload = () => {}; // Boş onload, zaten yüklenmiş olmalı
+    for (let d of dikenliKutucuklar) {
+      if (tuzakResmi.complete && tuzakResmi.naturalHeight !== 0) {
+        ctx.drawImage(tuzakResmi, d.x - kameraPozisyonu.x, d.y - kameraPozisyonu.y, KUTUCUK_BOYUTU, KUTUCUK_BOYUTU);
+      }
+    }
+  }
+  // Kontrol noktalarını çizme
+  function kontrolNoktalariniCiz() {
+    kontrolNoktasiResmi.onload = () => {};
+    for (const kn of kontrolNoktasiKutucuklari) {
+      if (kontrolNoktasiResmi.complete && kontrolNoktasiResmi.naturalHeight !== 0) {
+        ctx.drawImage(kontrolNoktasiResmi, kn.x - kameraPozisyonu.x, kn.y - kameraPozisyonu.y, kn.genislik, kn.yukseklik);
+        if (kn.aktifMi) {
+          ctx.fillStyle = "rgba(255, 215, 0, 0.3)"; // Altın rengi, yarı saydam
+          ctx.beginPath();
+          ctx.arc(kn.x - kameraPozisyonu.x + kn.genislik/2, kn.y - kameraPozisyonu.y + kn.yukseklik/2, kn.genislik/2, 0, Math.PI*2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+  // Hareketli tuzakları çizme
+  function hareketliTuzaklariCiz() {
+    karincaResmi.onload = () => {};
+    for (const t of hareketliTuzaklar) {
+      if (t.resim && t.resim.complete && t.resim.naturalHeight !== 0) {
+        ctx.drawImage(t.resim, t.x - kameraPozisyonu.x, t.y - kameraPozisyonu.y, t.genislik, t.yukseklik);
+      }
+    }
+  }
+  // TÜRK bayrağını çizme
+  function turkBayraklariCiz() {
+    bayrakResmi.onload = () => {};
+    for (const b of turkBayraklari) {
+      if (b.resim && b.resim.complete && b.resim.naturalHeight !== 0) {
+        ctx.drawImage(b.resim, b.x - kameraPozisyonu.x, b.y - kameraPozisyonu.y, b.genislik, b.yukseklik);
+      }
+    }
+  }
+  // Bitiş çizgisi alanını çizME
+  function bitisCizgisiniCiz() {
+    bitisResmi.onload = () => {};
+    for (const b of bitisCizgisiAlanlari) {
+      if (b.resim && b.resim.complete && b.resim.naturalHeight !== 0) {
+        ctx.drawImage(b.resim, b.x - kameraPozisyonu.x, b.y - kameraPozisyonu.y, b.genislik, b.yukseklik);
+      }
+    }
+  }
+  // Tüm oyun elemanlarını ve ekranlarını çizen ana çizim fonksiyonu
+  function herSeyiCiz() {
+    // Arka Plan
+    if (arkaPlanResmiHazir) {
+      ctx.drawImage(arkaPlanResmiAsset, 0, 0, canvas.width, canvas.height);
+    } else {
+      ctx.fillStyle = '#7aa5d2'; // Varsayılan arka plan rengi
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    if (oyunDurumu === "oynaniyor" || oyunDurumu === "kazanildi") { // Kazanıldı durumunda da oyun elemanları çizilsin (konfeti arkasında)
+      // Platformlar
+      platformlar.forEach(p => {
+        ctx.fillStyle = p.renk;
+        ctx.fillRect(p.x - kameraPozisyonu.x, p.y - kameraPozisyonu.y, p.genislik, p.yukseklik);
+        if (p.tip !== 'zemin') {
+          ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+          ctx.strokeRect(p.x - kameraPozisyonu.x, p.y - kameraPozisyonu.y, p.genislik, p.yukseklik);
+        }
+      });
+
+      // Renk Yamaları
+      renkYamalari.forEach(y => {
+        ctx.fillStyle = y.renk;
+        ctx.fillRect(y.x - kameraPozisyonu.x, y.y - kameraPozisyonu.y, y.genislik, y.yukseklik);
+        ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+        ctx.strokeRect(y.x - kameraPozisyonu.x, y.y - kameraPozisyonu.y, y.genislik, y.yukseklik);
+      });
+
+      // Diğer Oyun Elemanları
+      dikenleriCiz();
+      kontrolNoktalariniCiz();
+      hareketliTuzaklariCiz();
+      turkBayraklariCiz();
+      bitisCizgisiniCiz();
+      oyuncuyuCiz();
+    }
+
+    // Oyun Durumuna Göre Ekranlar
+    if (oyunDurumu === "kazanildi") {
+      // Konfeti efekti için koyu
+      ctx.fillStyle = "rgba(50, 50, 50, 0.95)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Kazanma Mesajı
+      ctx.font = "bold 80px Impact, Arial Black, sans-serif";
+      ctx.fillStyle = "gold";
+      ctx.textAlign = "center";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 3;
+      ctx.strokeText("WINNER WINNER", canvas.width / 2, canvas.height / 2 - 70);
+      ctx.fillText("WINNER WINNER", canvas.width / 2, canvas.height / 2 - 70);
+      ctx.font = "bold 60px Impact, Arial Black, sans-serif";
+      ctx.strokeText("CHICKEN DINNER!", canvas.width / 2, canvas.height / 2 + 10);
+      ctx.fillText("CHICKEN DINNER!", canvas.width / 2, canvas.height / 2 + 10);
+      ctx.font = "30px Arial";
+      ctx.fillStyle = "lightgray";
+      ctx.lineWidth = 1;
+      ctx.strokeText("Yeniden Başlamak İçin ENTER'a Basın", canvas.width / 2, canvas.height / 2 + 100);
+      ctx.fillText("Yeniden Başlamak İçin ENTER'a Basın", canvas.width / 2, canvas.height / 2 + 100);
+
+      // Konfetiler
+      for (let konfeti of konfetiParcaciklari) {
+        konfeti.y += konfeti.hizY;
+        konfeti.x += konfeti.hizX;
+        konfeti.aci += konfeti.donusHizi;
+
+        ctx.save();
+        ctx.translate(konfeti.x, konfeti.y);
+        ctx.rotate(konfeti.aci);
+        ctx.fillStyle = konfeti.renk;
+        ctx.fillRect(-konfeti.boyut / 2, -konfeti.boyut / 2, konfeti.boyut, konfeti.boyut);
+        ctx.restore();
+      }
+      // Konfetiler ekrandan çıkınca temizle
+      konfetiParcaciklari = konfetiParcaciklari.filter(k => k.y < canvas.height + k.boyut);
+
+
+    } else if (oyunDurumu === "baslangic") {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "bold 50px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.fillText("Zarı Yuvarla - Renkli Macera", canvas.width / 2, canvas.height / 2 - 40);
+      ctx.font = "30px Arial";
+      ctx.fillStyle = "lightgreen";
+      ctx.fillText("Oyuna Başlamak İçin ENTER'a Basın", canvas.width / 2, canvas.height / 2 + 40);
+    }
+  }
+
+  function oyunDongusu() {
+    if (oyunDurumu === "oynaniyor") {
+      oyunDurumunuGuncelle();
+    }
+    herSeyiCiz();
+    requestAnimationFrame(oyunDongusu);
+  }
+
+  // Oyun Başlatma
+  window.onload = () => {
+    klavyeDinleyicileriniAyarla();
+    window.addEventListener('resize', tuvalBoyutlandir);
+    tuvalBoyutlandir();
+    haritaVerisiniIsle();
+    oyunDongusu();
+  };
+</script>
+</body>
+</html>
