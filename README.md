@@ -1,5 +1,11 @@
-RENKLİ MACERA KÜPÜ
-🧊 Renkli Macera Küpü, HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Oyuncu bir zar şeklinde küpü kontrol eder ve renk eşleşmelerini kullanarak duvarlara yapışır, tuzaklardan kaçar ve hedefe ulaşmaya çalışır.
+##RENKLİ MACERA KÜPÜ
+##🧊 Renkli Macera Küpü, HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Oyuncu bir zar şeklinde küpü kontrol eder ve renk eşleşmelerini kullanarak duvarlara yapışır, tuzaklardan kaçar ve hedefe ulaşmaya çalışır.
+
+![Image](https://github.com/user-attachments/assets/d27de5e3-545d-45f6-92e5-96051bf9f1fb)
+
+![Image](https://github.com/user-attachments/assets/f4d878f9-4ab6-4912-8c86-6760df6ce885)
+
+![Image](https://github.com/user-attachments/assets/8f246343-5b8f-4369-945b-5482a831936c)
 
 ## 🎮 Nasıl Oynanır?
 
@@ -37,6 +43,10 @@ RENKLİ MACERA KÜPÜ
 *   **Ses Efektleri ve Müzik:** Zıplama, ölüm, kayma, kazanma sesleri ve arka plan müziği.
 *   **Kamera Takibi:** Oyuncuyu takip eden yumuşak bir kamera hareketi.
 *   **Kazanma Ekranı:** Oyunu bitirdiğinizde konfeti efektli bir tebrik ekranı.
+
+![Image](https://github.com/user-attachments/assets/def60fa3-369e-4c17-9c64-9bab8a79ce3e)
+
+![Image](https://github.com/user-attachments/assets/2a202734-a3c7-4b5b-806d-db7c64ba8739)
 
 ## 🗺️ Harita (Seviye) Yapısı
 
@@ -108,8 +118,9 @@ Ses Efektleri: HTML Audio API
 Yayın: GitHub Pages
 
 
-👥 Geliştirici
+## 👥 Geliştirici
 Koray G.
 🔗https://github.com/korayga
+![Image](https://github.com/user-attachments/assets/db75f65d-e5d8-4ec1-ade0-a32738a66563)
 
 
