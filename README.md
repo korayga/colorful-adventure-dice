@@ -1,5 +1,5 @@
-##RENKLİ MACERA KÜPÜ
-##🧊 Renkli Macera Küpü, HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Oyuncu bir zar şeklinde küpü kontrol eder ve renk eşleşmelerini kullanarak duvarlara yapışır, tuzaklardan kaçar ve hedefe ulaşmaya çalışır.
+## RENKLİ MACERA KÜPÜ
+## 🧊 Renkli Macera Küpü, HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Oyuncu bir zar şeklinde küpü kontrol eder ve renk eşleşmelerini kullanarak duvarlara yapışır, tuzaklardan kaçar ve hedefe ulaşmaya çalışır.
 
 ![Image](https://github.com/user-attachments/assets/d27de5e3-545d-45f6-92e5-96051bf9f1fb)
 
