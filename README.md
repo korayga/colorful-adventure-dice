@@ -13,11 +13,11 @@ HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Oyuncu bir za
 ## 🎮 Nasıl Oynanır?
 
 1.  **Oyunu Başlatma:**
-    *   Bu repository'yi klonlayın veya ZIP olarak indirin.
+    *    https://korayga.github.io/colorful-adventure-dice/ adresinden ya da bu repository'yi klonlayın veya ZIP olarak indirin.
     *   `index.html` dosyasını modern bir web tarayıcısında (Chrome, Firefox, Edge vb.) açın.
     *   Başlangıç ekranında **ENTER** tuşuna basarak oyuna başlayın.
 
-2.  **Kontroller:**
+3.  **Kontroller:**
     *   **A / Sol Yön Tuşu (Klavye):** Sola Hareket
     *   **D / Sağ Yön Tuşu (Klavye):** Sağa Hareket
     *   **W (Duvarda Yapışırken):** Yukarı Kayma 
@@ -28,7 +28,7 @@ HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Oyuncu bir za
     *   **Sağ Ok Tuşu (Klavye):** Küpün yüzeylerini sağa doğru döndür
     *   **Shift:** Yapışmayı Bırak / Duvardan İtilme
 
-3.  **Oyunun Amacı:**
+4.  **Oyunun Amacı:**
     *   Küpü kontrol ederek engelleri aşın.
     *   Küpün alt yüzey rengini, üzerinde durduğunuz renk yamalarıyla değiştirebilirsiniz.
     *   Küpün yan yüzeylerinden birinin rengi, temas ettiğiniz renkli duvarla eşleşiyorsa o duvara yapışabilirsiniz.
