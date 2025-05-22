@@ -1,6 +1,9 @@
 ## 🧊 RENKLİ MACERA KÜPÜ
 HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Oyuncu bir zar şeklinde küpü kontrol eder ve renk eşleşmelerini kullanarak duvarlara yapışır, tuzaklardan kaçar ve hedefe ulaşmaya çalışır.
 
+👉 [🎮 Oyunu Hemen Oyna](https://korayga.github.io/colorful-adventure-dice/)
+
+
 ![Image](https://github.com/user-attachments/assets/d27de5e3-545d-45f6-92e5-96051bf9f1fb)
 
 ![Image](https://github.com/user-attachments/assets/f4d878f9-4ab6-4912-8c86-6760df6ce885)
