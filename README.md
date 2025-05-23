@@ -35,7 +35,7 @@ Bu proje saf **HTML**, **CSS** ve **JavaScript** ile geliştirilmiştir. Herhang
 
 ### 🌐 Çevrimiçi Oynama (Web)
 
- Projeyi online olarak doğrudan tarayıcınızda oynamak için aşağıdaki bağlantıyı kullanabilirsiniz:
+ Projeyi online olarak doğrudan tarayıcınızda oynamak için aşağıdaki bağlantıyı kullanabilirsiniz: <br>
  👉 https://korayga.github.io/colorful-adventure-dice/
 
 ### 🎮 Kontroller
@@ -44,8 +44,8 @@ Bu proje saf **HTML**, **CSS** ve **JavaScript** ile geliştirilmiştir. Herhang
  |--------|-------|
  | ⬅️ / A | Sola hareket |
  | ➡️ / D | Sağa hareket |
- | ⬆️ / W | Duvarda yukarı kayma |
- | ⬇️ / S | Duvarda aşağı kayma <br>➤ Daha akıcı kayma için: `W + A / W + D` ve `S + A / S + D` kombinasyonları |
+ | ⬆️ / W | Duvarda yukarı kayma <br>➤ Daha akıcı kayma için: `W + A / W + D`|
+ | ⬇️ / S | Duvarda aşağı kayma  <br>➤ Daha akıcı kayma için: `S + A / S + D`|
  | 🔄 ← / → | Küp yüzeyini sola/sağa döndür |
  | ␣ Space | Zıplama / Duvardan zıplama |
  | ⇧ Shift | Yapışmayı bırak |
@@ -53,11 +53,11 @@ Bu proje saf **HTML**, **CSS** ve **JavaScript** ile geliştirilmiştir. Herhang
 
 ### 🧪 Test Senaryosu
 
- *Oyuna girişte Enter tuşuna basılır.
- *Oyuncu sol ve sağa hareket eder, zıplar, duvara yapışır ve kayar.
- *Zar yönleri döndürülerek renk eşleşmesi sağlanır.
- *Tuzaklara değildiğinde kontrol noktasına geri dönülür.
- *Bitişe ulaşıldığında konfeti kutlaması oynar ve oyun kazanılır.
+ * Oyuna girişte Enter tuşuna basılır.
+ * Oyuncu sol ve sağa hareket eder, zıplar, duvara yapışır ve kayar.
+ * Zar yönleri döndürülerek renk eşleşmesi sağlanır.
+ * Tuzaklara değildiğinde kontrol noktasına geri dönülür.
+ * Bitişe ulaşıldığında konfeti kutlaması oynar ve oyun kazanılır.
 
 ## 🎬 Oynanış Videosu:
  📺 [YouTube'da İzle](https://www.youtube.com/watch?v=495S1Q45BaI)
