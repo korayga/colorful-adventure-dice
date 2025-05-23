@@ -10,8 +10,12 @@ HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Bu oyun, dör
 
 ![Image](https://github.com/user-attachments/assets/8f246343-5b8f-4369-945b-5482a831936c)
 
-## 🎮 Nasıl Oynanır?
+🎲 İlham Kaynağı
+Bu proje, "Roll - The Die" adlı oyundan ilham alınarak geliştirilmiştir.
+Nir Zaid ve ekibi tarafından, 2022 yılında GMTK Game Jam kapsamında geliştirilen bu yaratıcı bulmaca-platform oyunu, "Roll of the Dice" (Zar Atışı) teması etrafında şekillenmiştir.
+👉 [Orijinal Oyunu Görmek ve Oynamak için Tıklayın](https://nir-zaid.itch.io/roll-the-die)
 
+## 🎮 Nasıl Oynanır?
 1.  **Oyunu Başlatma:**
     *    https://korayga.github.io/colorful-adventure-dice/ adresinden ya da bu repository'yi klonlayın veya ZIP olarak indirin.
     *   `index.html` dosyasını modern bir web tarayıcısında (Chrome, Firefox, Edge vb.) açın.
@@ -33,7 +37,9 @@ HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Bu oyun, dör
     *   Küpün alt yüzey rengini, üzerinde durduğunuz renk yamalarıyla değiştirebilirsiniz.
     *   Küpün yan yüzeylerinden birinin rengi, temas ettiğiniz renkli duvarla eşleşiyorsa o duvara yapışabilirsiniz.
     *   Tuzaklara değmeden bölüm sonundaki bitiş çizgisine ulaşın.
-  
+
+## 🎬 Oynanış Videosu:
+# 📺 [YouTube'da İzle](https://www.youtube.com/watch?v=495S1Q45BaI)
 
 ## ✨ Özellikler
 
