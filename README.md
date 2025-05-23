@@ -92,17 +92,23 @@ Oyun için kullanılan tüm resim ve ses dosyaları `assets/` klasöründe bulun
 
 ## 🛠️ Kurulum ve Çalıştırma
 
-Bu proje saf HTML, CSS ve JavaScript ile yazılmıştır. Ek bir derleme veya bağımlılık kurulumu gerektirmez.
+Bu proje saf **HTML**, **CSS** ve **JavaScript** ile geliştirilmiştir. Herhangi bir derleme, bağımlılık veya kurulum gerektirmez.
 
-1.  Projeyi klonlayın:
-    ```bash
-    git clone https://github.com/korayga/korayga.github.io.git
-    ```
+### 🔄 Çevrimdışı Oynama (Local)
+
+1. Bu repoyu bilgisayarına klonla:
+   ```bash
+   git clone https://github.com/korayga/colorful-adventure-dice.git
+
 2.  Proje klasörüne gidin:
     ```bash
-    cd korayga.github.io/JSOYUN
+    cd colorful-adventure-dice
     ```
 3.  `index.html` dosyasını bir web tarayıcısında açın.
+
+### 🌐 Çevrimiçi Oynama (Web)
+ Projeyi online olarak doğrudan tarayıcınızda oynamak için aşağıdaki bağlantıyı kullanabilirsiniz:
+👉 https://korayga.github.io/colorful-adventure-dice/
 
 ## 🧪 Test Senaryosu
 Oyuna girişte Enter tuşuna basılır.
