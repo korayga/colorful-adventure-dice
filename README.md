@@ -10,7 +10,7 @@ HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Bu oyun, dör
 
 ![Image](https://github.com/user-attachments/assets/8f246343-5b8f-4369-945b-5482a831936c)
 
-🎲 İlham Kaynağı
+## 🎲 İlham Kaynağı
 Bu proje, "Roll - The Die" adlı oyundan ilham alınarak geliştirilmiştir.
 Nir Zaid ve ekibi tarafından, 2022 yılında GMTK Game Jam kapsamında geliştirilen bu yaratıcı bulmaca-platform oyunu, "Roll of the Dice" (Zar Atışı) teması etrafında şekillenmiştir.
 👉 [Orijinal Oyunu Görmek ve Oynamak için Tıklayın](https://nir-zaid.itch.io/roll-the-die)
