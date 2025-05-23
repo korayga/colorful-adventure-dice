@@ -1,4 +1,4 @@
-## 🧊 RENKLİ MACERA KÜPÜ
+# 🧊 RENKLİ MACERA KÜPÜ
 HTML5 Canvas kullanılarak geliştirilen bir 2D platform oyunudur. Bu oyun, dört farklı kenarı farklı renklere boyanabilen bir zar karakterinin, küpün hangi yüzeyiyle temas ediyorsa o yüzeyin rengine göre platformlara yapışabildiği, yapıştığı yüzeylerde yukarı ya da yana kayabildiği, çeşitli tuzaklardan kaçınarak ilerlemeye çalıştığı ve renk uyumu mantığına dayalı benzersiz bir platform macerasıdır.
 
 👉 [🎮 Oyunu Hemen Oyna](https://korayga.github.io/colorful-adventure-dice/)
@@ -39,7 +39,7 @@ Nir Zaid ve ekibi tarafından, 2022 yılında GMTK Game Jam kapsamında gelişti
     *   Tuzaklara değmeden bölüm sonundaki bitiş çizgisine ulaşın.
 
 ## 🎬 Oynanış Videosu:
-# 📺 [YouTube'da İzle](https://www.youtube.com/watch?v=495S1Q45BaI)
+ 📺 [YouTube'da İzle](https://www.youtube.com/watch?v=495S1Q45BaI)
 
 ## ✨ Özellikler
 
