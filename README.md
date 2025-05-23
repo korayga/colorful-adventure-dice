@@ -60,7 +60,7 @@ Bu proje saf **HTML**, **CSS** ve **JavaScript** ile geliştirilmiştir. Herhang
  * Bitişe ulaşıldığında konfeti kutlaması oynar ve oyun kazanılır.
 
 ## 🎬 Oynanış Videosu:
- 📺 [YouTube'da İzle](https://www.youtube.com/watch?v=495S1Q45BaI)
+ 📺 [YouTube'da İzle](https://youtu.be/T-YR73qj0Ic)
 
 ## ✨ Özellikler
 
