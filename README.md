@@ -15,28 +15,49 @@ Bu proje, "Roll - The Die" adlı oyundan ilham alınarak geliştirilmiştir.
 Nir Zaid ve ekibi tarafından, 2022 yılında GMTK Game Jam kapsamında geliştirilen bu yaratıcı bulmaca-platform oyunu, "Roll of the Dice" (Zar Atışı) teması etrafında şekillenmiştir.
 👉 [Orijinal Oyunu Görmek ve Oynamak için Tıklayın](https://nir-zaid.itch.io/roll-the-die)
 
-## 🎮 Nasıl Oynanır?
-1.  **Oyunu Başlatma:**
-    *    https://korayga.github.io/colorful-adventure-dice/ adresinden ya da bu repository'yi klonlayın veya ZIP olarak indirin.
-    *   `index.html` dosyasını modern bir web tarayıcısında (Chrome, Firefox, Edge vb.) açın.
-    *   Başlangıç ekranında **ENTER** tuşuna basarak oyuna başlayın.
+# 🎮 Nasıl Oynanır?
 
-3.  **Kontroller:**
-    *   **A / Sol Yön Tuşu (Klavye):** Sola Hareket
-    *   **D / Sağ Yön Tuşu (Klavye):** Sağa Hareket
-    *   **W (Duvarda Yapışırken):** Yukarı Kayma 
-    *   **S (Duvarda Yapışırken):** Aşağı Kayma
-             ➤ Daha akıcı kayma için: `W + A` / `W + D` (yukarı), `S + A` / `S + D` (aşağı)
-    *   **Space (Boşluk):** Zıplama / Duvardan Zıplama
-    *   **Sol Ok Tuşu (Klavye):** Küpün yüzeylerini sola doğru döndür
-    *   **Sağ Ok Tuşu (Klavye):** Küpün yüzeylerini sağa doğru döndür
-    *   **Shift:** Yapışmayı Bırak / Duvardan İtilme
+## 🛠️ Kurulum ve Çalıştırma
 
-4.  **Oyunun Amacı:**
-    *   Küpü kontrol ederek engelleri aşın.
-    *   Küpün alt yüzey rengini, üzerinde durduğunuz renk yamalarıyla değiştirebilirsiniz.
-    *   Küpün yan yüzeylerinden birinin rengi, temas ettiğiniz renkli duvarla eşleşiyorsa o duvara yapışabilirsiniz.
-    *   Tuzaklara değmeden bölüm sonundaki bitiş çizgisine ulaşın.
+Bu proje saf **HTML**, **CSS** ve **JavaScript** ile geliştirilmiştir. Herhangi bir derleme, bağımlılık veya kurulum gerektirmez.
+
+### 🔄 Çevrimdışı Oynama (Local)
+
+1. Bu repoyu bilgisayarına klonla:
+   ```bash
+   git clone https://github.com/korayga/colorful-adventure-dice.git
+
+2.  Proje klasörüne gidin:
+    ```bash
+    cd colorful-adventure-dice
+    ```
+3.  `index.html` dosyasını bir web tarayıcısında açın.
+
+### 🌐 Çevrimiçi Oynama (Web)
+
+ Projeyi online olarak doğrudan tarayıcınızda oynamak için aşağıdaki bağlantıyı kullanabilirsiniz:
+ 👉 https://korayga.github.io/colorful-adventure-dice/
+
+### 🎮 Kontroller
+
+ | Tuşlar | Görev |
+ |--------|-------|
+ | ⬅️ / A | Sola hareket |
+ | ➡️ / D | Sağa hareket |
+ | ⬆️ / W | Duvarda yukarı kayma |
+ | ⬇️ / S | Duvarda aşağı kayma <br>➤ Daha akıcı kayma için: `W + A / W + D` ve `S + A / S + D` kombinasyonları |
+ | 🔄 ← / → | Küp yüzeyini sola/sağa döndür |
+ | ␣ Space | Zıplama / Duvardan zıplama |
+ | ⇧ Shift | Yapışmayı bırak |
+ | ⏎ Enter | Oyunu başlat / yeniden başlat |
+
+### 🧪 Test Senaryosu
+
+ *Oyuna girişte Enter tuşuna basılır.
+ *Oyuncu sol ve sağa hareket eder, zıplar, duvara yapışır ve kayar.
+ *Zar yönleri döndürülerek renk eşleşmesi sağlanır.
+ *Tuzaklara değildiğinde kontrol noktasına geri dönülür.
+ *Bitişe ulaşıldığında konfeti kutlaması oynar ve oyun kazanılır.
 
 ## 🎬 Oynanış Videosu:
  📺 [YouTube'da İzle](https://www.youtube.com/watch?v=495S1Q45BaI)
@@ -90,36 +111,6 @@ Oyun için kullanılan tüm resim ve ses dosyaları `assets/` klasöründe bulun
 *   `assets/bayrak.png`: TÜRK Bayrağı resmi
 *   `assets/Background_2.png`: Arka plan resmi
 
-## 🛠️ Kurulum ve Çalıştırma
-
-Bu proje saf **HTML**, **CSS** ve **JavaScript** ile geliştirilmiştir. Herhangi bir derleme, bağımlılık veya kurulum gerektirmez.
-
-### 🔄 Çevrimdışı Oynama (Local)
-
-1. Bu repoyu bilgisayarına klonla:
-   ```bash
-   git clone https://github.com/korayga/colorful-adventure-dice.git
-
-2.  Proje klasörüne gidin:
-    ```bash
-    cd colorful-adventure-dice
-    ```
-3.  `index.html` dosyasını bir web tarayıcısında açın.
-
-### 🌐 Çevrimiçi Oynama (Web)
- Projeyi online olarak doğrudan tarayıcınızda oynamak için aşağıdaki bağlantıyı kullanabilirsiniz:
-👉 https://korayga.github.io/colorful-adventure-dice/
-
-## 🧪 Test Senaryosu
-Oyuna girişte Enter tuşuna basılır.
-
-Oyuncu sol ve sağa hareket eder, zıplar, duvara yapışır ve kayar.
-
-Zar yönleri döndürülerek renk eşleşmesi sağlanır.
-
-Tuzaklara değildiğinde kontrol noktasına geri dönülür.
-
-Bitişe ulaşıldığında konfeti kutlaması oynar ve oyun kazanılır.
 
 ## 📁 Kullanılan Teknolojiler
 HTML5 Canvas 
